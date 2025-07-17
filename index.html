@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>약 정보 조회</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      color: #333;
+    }
+
+    .wrapper {
+      max-width: 720px;
+      margin: 60px auto;
+      padding: 30px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #1e40af;
+      font-size: 2.2rem;
+      margin-bottom: 30px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 16px;
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      background: #f9fafb;
+      margin-bottom: 25px;
+      transition: border-color 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: #3b82f6;
+      outline: none;
+    }
+
+    .medicine-card {
+      background: #f8fafc;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      border-left: 6px solid #3b82f6;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .medicine-card:hover {
+      background: #e0f2fe;
+      transform: scale(1.01);
+    }
+
+    .info-box {
+      display: none;
+      margin-top: 30px;
+      padding: 24px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 5px 18px rgba(0, 0, 0, 0.05);
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .info-box.active {
+      display: block;
+    }
+
+    .info-box h2 {
+      margin-top: 0;
+      color: #1d4ed8;
+      font-size: 1.5rem;
+    }
+
+    .info-box p {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-top: 10px;
+    }
+
+    .highlight {
+      background-color: yellow;
+    }
+
+    .warning {
+      color: red;
+      font-weight: bold;
+    }
+
+    .section-title {
+      font-weight: bold;
+      margin-top: 14px;
+      color: #111;
+    }
+
+    .section-content {
+      margin-left: 10px;
+      margin-bottom: 12px;
+      white-space: pre-line;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .wrapper {
+        margin: 30px 16px;
+        padding: 20px;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>💊 약 정보 조회</h1>
+    <input type="text" id="searchInput" placeholder="약 이름을 입력하세요..." oninput="filterMedicines()" />
+    <div id="medicineList"></div>
+    <div id="medicineInfo" class="info-box"></div>
+  </div>
+
+  <script>
+    const data = [
+      {
+        name: "타이레놀",
+        ingredient: "아세트아미노펜 500mg",
+        effect: "감기로 인한 발열 및 통증, 두통, 신경통, 근육통, 월경통, 염좌통 해소",
+        usage: "만 12세 이상 소아 및 성인: 1회 1~2정씩 1일 3-4회 복용. 1일 최대 8정 초과 금지.",
+        caution: `<p class="section-title warning">⚠️ 주의사항</p>
+        <div class="section-content">
+<strong>• 복용 주의 대상</strong>
+
+음주자 (간 손상 위험)
+
+간·신장 기능 이상자, 고령자, 임산부
+
+<strong>• 복용 금지 대상</strong>
+
+아세트아미노펜 과민증 환자
+
+심한 간·신장·심장질환, 소화성 궤양, 혈액 이상자
+
+아스피린 천식 병력자
+
+<strong>• 이상 반응 시 복용 중단</strong>
+
+피부 발진, 호흡곤란, 청색증, 두드러기 등 과민 반응
+
+구역, 구토, 복통, 소화기 출혈 증상
+
+<strong>• 기타 주의사항</strong>
+
+다른 아세트아미노펜 제품과 중복 복용 금지
+
+1일 최대 4,000mg 초과 금지
+
+가능한 최단기간, 최소 용량으로 복용
+</div>`
+      },
+      {
+        name: "콜대원정",
+        ingredient: "디히드로코데인, 구아이페네신, 메틸에페드린, 클로르페니라민",
+        effect: "기침 및 가래 증상 완화",
+        usage: "성인(15세 이상) 1회 2정, 1일 3회 식후 복용. (총 6정)",
+        caution: `<p class="section-title warning">⚠️ 주의사항</p>
+        <div class="section-content">
+<strong>• 복용 주의 대상</strong>
+
+간·신장·심혈관 질환자, 갑상선질환자, 고령자
+
+알레르기 체질, 피부 반응 병력자
+
+<strong>• 복용 금지 대상</strong>
+
+약 성분(디히드로코데인, 클로르페니라민 등) 과민증 환자
+
+MAO 억제제 복용 중이거나 최근 2주 이내 복용한 환자
+
+12세 미만 소아, 임산부, 수유부
+
+녹내장, 전립선비대, 유당불내증 환자
+
+<strong>• 이상 반응 시 복용 중단</strong>
+
+쇼크, 호흡곤란, 심계항진, 피부 발진
+
+졸음, 어지러움, 혈액 이상, 위장 장애 등
+
+<strong>• 기타 주의사항</strong>
+
+졸음 유발 가능 → 운전 및 기계 조작 주의
+
+감기약, 진정제, 항히스타민제와 중복 복용 금지
+
+장기 복용 및 과량 복용 금지
+</div>`
+      },
+      {
+        name: "이부프로펜",
+        ingredient: "이부프로펜 400mg",
+        effect: "해열, 염증 완화, 통증 해소",
+        usage: "성인 기준 1회 200~400mg을 1일 3~4회 복용 (최대 3200mg).",
+        caution: `<p class="section-title warning">⚠️ 주의사항</p>
+        <div class="section-content">
+<strong>• 복용 주의 대상</strong>
+
+음주자 (위장출혈 위험)
+
+심혈관·신장·간질환자, 고령자, 임산부, 수유부
+
+고혈압, 혈액 이상 병력자, 약물 복용 중인 환자
+
+<strong>• 복용 금지 대상</strong>
+
+위장 궤양·출혈 환자
+
+아스피린 과민증 및 병력자
+
+심한 간·신장·심장기능 저하 환자
+
+임신 3기 임부, 메토트렉세이트 고용량 복용자
+
+유당불내증 등 흡수장애 환자 (해당 제제에 한함)
+
+<strong>• 이상 반응 시 복용 중단</strong>
+
+쇼크, 호흡곤란, 피부 발진, 청색증, 어지러움
+
+위장 출혈, 복통, 간 기능 이상, 신부전 등
+
+<strong>• 기타 주의사항</strong>
+
+다른 NSAIDs와 병용 금지
+
+최대 1일 3,200mg 초과 금지
+
+최소 유효용량, 최단기간 복용 원칙
+
+정기적 검사 필요
+</div>`
+      },
+      {
+        name: "바이엘아스피린",
+        ingredient: "아스피린 400mg",
+        effect: "두통, 치통, 생리통, 감기통증 및 해열",
+        usage: "충분한 물과 함께 복용. 위장장애 시 전문가 상담.",
+        caution: `<p class="section-title warning">⚠️ 주의사항</p>
+        <div class="section-content">
+<strong>• 복용 주의 대상</strong>
+
+음주자, 심혈관·신장·간장애, 혈액 이상, 천식 병력자
+
+고령자, 소아, 수술 예정자
+
+항응고제 복용자, 과민증 병력자
+
+<strong>• 복용 금지 대상</strong>
+
+살리실산 제제 과민증
+
+소화성 궤양, 출혈성 질환, 심한 간·신장·심장질환자
+
+메토트렉세이트 고용량 병용자
+
+임신 3기 여성, 15세 미만 소아(특히 감염 질환 시)
+
+<strong>• 이상 반응 시 복용 중단</strong>
+
+쇼크, 아나필락시스, 발진, 홍반, 피부 이상(SJS, DRESS 등)
+
+귀울림, 어지러움, 위장출혈, 간·신장 이상 등
+
+<strong>• 기타 주의사항</strong>
+
+다른 NSAIDs와 병용 금지
+
+수술 1주 전 투여 시 출혈 가능성
+
+장기 복용 시 정기검진 필요
+
+수유부 및 임신 20주 이후 여성: 복용 금지
+
+SSRI, 디곡신, ACE억제제 등과 상호작용 주의
+</div>`
+      },
+      {
+        name: "마데카솔",
+        ingredient: "센텔라정량추출물 10mg, 네오마이신황산염 3.5",
+        effect: "작은 상처, 화상, 감염 피부질환 초기 치료",
+        usage: "1일 1~2회 적당량을 환부에 바름. 권장량 초과 금지.",
+        caution: `<p class="section-title warning">⚠️ 주의사항</p>
+        <div class="section-content">
+<strong>• 사용 주의 대상</strong>
+
+임산부 및 수유부
+
+장기간 광범위 사용이 예상되는 환자
+
+어린이 (보호자 지도하 사용)
+
+<strong>• 사용 금지 대상</strong>
+
+센텔라추출물, 네오마이신 등 약 성분에 과민증 병력자
+
+아미노글리코사이드계 항생제(스트렙토마이신, 겐타마이신 등) 과민 병력자
+
+눈·눈 주위, 유방 부위 상처 환자
+
+<strong>• 이상 반응 시 사용 중단</strong>
+
+가려움, 발적, 부기, 구진, 물집 등 감작 반응
+
+새로운 감염 의심(균교대 현상)
+
+증상 악화 또는 8일 이상 사용 후 이상 증상
+
+<strong>• 기타 주의사항</strong>
+
+1일 1~2회 적당량 사용, 권장량 초과 금지
+
+눈에 닿지 않도록 주의, 안과용 사용 금지
+
+증상 개선 시 빠른 중단 권장
+
+장기 사용 시 내성균 발생 위험
+
+치료 이외의 목적(화장, 면도 후 등) 사용 금지
+
+연쇄구균 감염 시 전신 항생제 요법 필요
+</div>`
+      }
+    ];
+
+    function createCard(med) {
+      const card = document.createElement("div");
+      card.className = "medicine-card";
+      card.textContent = med.name;
+      card.onclick = () => {
+        const info = document.getElementById("medicineInfo");
+        info.classList.add("active");
+        info.innerHTML = `
+          <h2>${med.name}</h2>
+          <p><span class="section-title">📌 성분</span><br>${med.ingredient}</p>
+          <p><span class="section-title">💡 효능</span><br>${med.effect}</p>
+          <p><span class="section-title">🕒 복용법</span><br>${med.usage}</p>
+          ${med.caution}
+        `;
+        info.scrollIntoView({ behavior: "smooth" });
+      };
+      return card;
+    }
+
+    function filterMedicines() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const list = document.getElementById("medicineList");
+      list.innerHTML = "";
+
+      data.forEach((med) => {
+        if (med.name.toLowerCase().includes(input)) {
+          list.appendChild(createCard(med));
+        }
+      });
+    }
+
+    // 초기 전체 목록 표시
+    window.onload = () => {
+      const list = document.getElementById("medicineList");
+      data.forEach((med) => list.appendChild(createCard(med)));
+    }
+  </script>
+</body>
+</html>
